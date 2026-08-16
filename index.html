@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>המתכונים שלי</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap');
 
@@ -11,13 +12,11 @@
     font-family: 'Polin';
     src: url('Polin-Regular.woff2') format('woff2');
     font-weight: 400;
-    font-style: normal;
   }
   @font-face {
     font-family: 'Polin';
     src: url('Polin-Semibold.woff2') format('woff2');
     font-weight: 600;
-    font-style: normal;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,56 +35,42 @@
 
   body { font-family: 'Polin', 'Heebo', sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; }
 
-  /* HEADER */
   header {
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
-    padding: 0 32px;
-    position: sticky; top: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    height: 68px;
+    background: var(--card); border-bottom: 1px solid var(--border);
+    padding: 0 32px; position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between; height: 68px;
   }
-  .logo { display: flex; align-items: center; gap: 10px; font-size: 1.7rem; font-weight: 600; color: var(--accent); font-family: 'Polin', 'Heebo', sans-serif; }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 1.7rem; font-weight: 600; color: var(--accent); font-family: 'Polin', sans-serif; }
   .header-actions { display: flex; align-items: center; gap: 12px; }
 
   .search-bar {
-    display: flex; align-items: center;
-    background: var(--bg); border: 1px solid var(--border); border-radius: 100px;
-    padding: 8px 16px; gap: 8px; width: 220px;
+    display: flex; align-items: center; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 100px; padding: 8px 16px; gap: 8px; width: 220px;
   }
-  .search-bar input {
-    border: none; background: transparent; font-family: 'Heebo', sans-serif;
-    font-size: 0.9rem; color: var(--text); outline: none; width: 100%;
-  }
+  .search-bar input { border: none; background: transparent; font-family: 'Polin','Heebo',sans-serif; font-size: 0.9rem; color: var(--text); outline: none; width: 100%; }
   .search-bar svg { color: var(--text-muted); flex-shrink: 0; }
 
   .btn-upload {
-    display: flex; align-items: center; gap: 8px;
-    background: var(--accent); color: white; border: none; border-radius: 100px;
-    padding: 10px 20px; font-family: 'Heebo', sans-serif; font-size: 0.9rem; font-weight: 600;
-    cursor: pointer; transition: opacity 0.2s;
+    display: flex; align-items: center; gap: 8px; background: var(--accent); color: white;
+    border: none; border-radius: 100px; padding: 10px 20px; font-family: 'Polin','Heebo',sans-serif;
+    font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
   }
   .btn-upload:hover { opacity: 0.88; }
+  .btn-upload:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* CATEGORIES */
   .categories { display: flex; gap: 10px; padding: 20px 32px; overflow-x: auto; scrollbar-width: none; }
   .categories::-webkit-scrollbar { display: none; }
-
   .cat-chip {
-    display: flex; align-items: center; gap: 7px;
-    padding: 8px 16px; border-radius: 100px;
-    border: 1.5px solid var(--border); background: var(--card);
-    font-size: 0.875rem; font-weight: 500; white-space: nowrap;
-    cursor: pointer; transition: all 0.18s; color: var(--text-muted);
+    display: flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: 100px;
+    border: 1.5px solid var(--border); background: var(--card); font-size: 0.875rem;
+    font-weight: 500; white-space: nowrap; cursor: pointer; transition: all 0.18s; color: var(--text-muted);
   }
   .cat-chip.active, .cat-chip:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
   .cat-chip svg { width: 15px; height: 15px; flex-shrink: 0; }
 
-  /* MAIN */
   main { padding: 4px 32px 48px; }
   .section-title { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px; }
 
-  /* MASONRY GRID */
   .gallery { columns: 4; column-gap: 16px; }
   @media (max-width: 1100px) { .gallery { columns: 3; } }
   @media (max-width: 760px)  { .gallery { columns: 2; } }
@@ -100,47 +85,39 @@
   .recipe-card img { width: 100%; height: 220px; display: block; object-fit: cover; }
 
   .card-overlay {
-    position: absolute; inset: 0;
+    position: absolute; inset: 0; bottom: auto; height: calc(100% - 80px);
     background: linear-gradient(to top, rgba(30,15,5,0.55) 0%, transparent 55%);
-    opacity: 0; transition: opacity 0.2s;
-    display: flex; align-items: flex-end; padding: 14px;
-    /* only covers the image part, not the info below */
-    bottom: auto; height: calc(100% - 80px);
+    opacity: 0; transition: opacity 0.2s; display: flex; align-items: flex-end; padding: 14px;
   }
   .recipe-card:hover .card-overlay { opacity: 1; }
-
   .card-actions { display: flex; gap: 8px; }
   .card-action-btn {
     background: rgba(255,255,255,0.9); border: none; border-radius: 50%;
     width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: background 0.15s; color: var(--text);
+    cursor: pointer; color: var(--text);
   }
   .card-action-btn:hover { background: white; }
 
   .card-tag {
-    position: absolute; top: 10px; right: 10px;
-    background: rgba(255,255,255,0.92); border-radius: 100px;
-    padding: 3px 10px; font-size: 0.72rem; font-weight: 600; color: var(--accent);
+    position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.92);
+    border-radius: 100px; padding: 3px 10px; font-size: 0.72rem; font-weight: 600; color: var(--accent);
   }
-
   .card-info { padding: 11px 13px 13px; }
   .card-title { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .card-source { font-size: 0.76rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
   .card-source svg { width: 11px; height: 11px; flex-shrink: 0; }
 
-  /* EMPTY */
   .empty { text-align: center; padding: 80px 32px; color: var(--text-muted); display: none; }
   .empty svg { width: 52px; height: 52px; margin-bottom: 16px; opacity: 0.35; }
   .empty h3 { font-size: 1.15rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
 
-  /* ── ADD RECIPE MODAL ── */
-  .backdrop {
-    position: fixed; inset: 0; background: rgba(20,10,5,0.7);
-    z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px;
-  }
+  .loading { text-align: center; padding: 60px; color: var(--text-muted); font-size: 0.95rem; }
+
+  /* BACKDROP */
+  .backdrop { position: fixed; inset: 0; background: rgba(20,10,5,0.7); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
   .backdrop.open { display: flex; }
 
-  /* view modal */
+  /* VIEW MODAL */
   .view-modal { background: var(--card); border-radius: 20px; max-width: 540px; width: 100%; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.3); }
   .view-modal img { width: 100%; max-height: 65vh; object-fit: contain; background: #f5ede5; display: block; }
   .view-modal-footer { padding: 16px 20px; display: flex; align-items: flex-start; justify-content: space-between; }
@@ -150,9 +127,8 @@
   .view-modal-footer .info .src svg { width: 13px; height: 13px; }
   .modal-tag { font-size: 0.78rem; color: var(--accent); font-weight: 600; background: var(--accent-light); padding: 3px 10px; border-radius: 100px; display: inline-block; }
   .icon-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; color: var(--text-muted); }
-  .icon-btn:hover { color: var(--text); }
 
-  /* add modal */
+  /* ADD MODAL */
   .add-modal { background: var(--card); border-radius: 20px; max-width: 480px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,0.3); overflow: hidden; }
   .add-modal-header { padding: 20px 22px 0; display: flex; align-items: center; justify-content: space-between; }
   .add-modal-header h2 { font-size: 1.05rem; font-weight: 700; }
@@ -172,16 +148,20 @@
   .field label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
   .field input, .field select {
     width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px;
-    font-family: 'Heebo', sans-serif; font-size: 0.9rem; color: var(--text);
+    font-family: 'Polin','Heebo',sans-serif; font-size: 0.9rem; color: var(--text);
     background: var(--bg); outline: none; transition: border-color 0.18s;
   }
   .field input:focus, .field select:focus { border-color: var(--accent); }
 
   .add-modal-footer { padding: 0 22px 22px; display: flex; gap: 10px; }
-  .btn-cancel { flex: 1; padding: 11px; border: 1.5px solid var(--border); border-radius: 10px; background: transparent; font-family: 'Heebo', sans-serif; font-size: 0.9rem; cursor: pointer; color: var(--text-muted); }
-  .btn-save { flex: 2; padding: 11px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Heebo', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+  .btn-cancel { flex: 1; padding: 11px; border: 1.5px solid var(--border); border-radius: 10px; background: transparent; font-family: 'Polin','Heebo',sans-serif; font-size: 0.9rem; cursor: pointer; color: var(--text-muted); }
+  .btn-save { flex: 2; padding: 11px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Polin','Heebo',sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
   .btn-save:hover { opacity: 0.88; }
   .btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .progress-bar { height: 4px; background: var(--accent-light); border-radius: 2px; overflow: hidden; margin-top: 8px; display: none; }
+  .progress-bar.show { display: block; }
+  .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; border-radius: 2px; }
 </style>
 </head>
 <body>
@@ -194,16 +174,15 @@
   <div class="header-actions">
     <div class="search-bar">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" placeholder="חפשי מתכון..." id="searchInput" oninput="filterRecipes()" />
+      <input type="text" placeholder="חפשי מתכון..." id="searchInput" oninput="renderGallery()" />
     </div>
-    <button class="btn-upload" onclick="openAddModal()">
+    <button class="btn-upload" id="btnOpenAdd" onclick="openAddModal()">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       הוספת מתכון
     </button>
   </div>
 </header>
 
-<!-- CATEGORIES -->
 <div class="categories" id="catBar">
   <div class="cat-chip active" data-cat="הכל">
     <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -249,6 +228,7 @@
 
 <main>
   <div class="section-title">כל המתכונים · <span id="count">0</span></div>
+  <div id="loadingMsg" class="loading">טוענת מתכונים...</div>
   <div class="gallery" id="gallery"></div>
   <div class="empty" id="emptyState">
     <svg fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
@@ -274,7 +254,7 @@
   </div>
 </div>
 
-<!-- ADD RECIPE MODAL -->
+<!-- ADD MODAL -->
 <div class="backdrop" id="addBackdrop" onclick="closeAdd(event)">
   <div class="add-modal" onclick="event.stopPropagation()">
     <div class="add-modal-header">
@@ -284,7 +264,6 @@
       </button>
     </div>
     <div class="add-modal-body">
-      <!-- image picker -->
       <div class="img-preview-wrap" id="imgPreviewWrap" onclick="document.getElementById('fileInput').click()">
         <img id="previewImg" src="" alt="" />
         <div class="placeholder">
@@ -293,6 +272,7 @@
         </div>
       </div>
       <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="previewSelected(this)" />
+      <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
 
       <div class="field">
         <label>שם המתכון</label>
@@ -300,7 +280,7 @@
       </div>
       <div class="field">
         <label>ממי קיבלת?</label>
-        <input type="text" id="inputSource" placeholder="לדוג׳ מאמא / סטטוס של דנה / האתר של ענת" />
+        <input type="text" id="inputSource" placeholder="לדוג׳ מאמא / סטטוס של דנה" />
       </div>
       <div class="field">
         <label>קטגוריה</label>
@@ -325,28 +305,30 @@
 </div>
 
 <script>
-  const CATEGORIES = ['סלטים','פסטה ואורז','עוף ובשר','דגים','צמחוני','קינוחים','אפייה','ארוחות בוקר','שתייה','כללי'];
+  const SUPABASE_URL = 'https://agccsexevjgjqzwtwfdm.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_8KAt0AkDcOG_jEi16FnbJw_L0YyDNim';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const demos = [
-    { src: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400', tag: 'סלטים', title: 'סלט ירוק עם טחינה', source: 'מאמא' },
-    { src: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400', tag: 'ארוחות בוקר', title: 'פנקייקס תפוחים', source: 'סטטוס של דנה' },
-    { src: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400', tag: 'כללי', title: 'פיצה ביתית', source: 'האתר של ענת אברהם' },
-    { src: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400', tag: 'סלטים', title: 'בולגרית קלאסית', source: 'סטטוס של מיכל' },
-    { src: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400', tag: 'קינוחים', title: 'עוגת שוקולד לחה', source: 'מאמא' },
-    { src: 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400', tag: 'ארוחות בוקר', title: 'טוסט אבוקדו', source: 'אינסטגרם' },
-    { src: 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400', tag: 'אפייה', title: 'בריוש חמאה', source: 'הבלוג של נטלי' },
-    { src: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400', tag: 'צמחוני', title: 'קערת בודהה', source: 'סטטוס של ליאת' },
-  ];
-
-  let recipes = [...demos];
+  let recipes = [];
   let activeCat = 'הכל';
-  let pendingDataUrl = null;
+  let pendingFile = null;
 
+  // ── LOAD ──
+  async function loadRecipes() {
+    document.getElementById('loadingMsg').style.display = 'block';
+    const { data, error } = await sb.from('recipes').select('*').order('created_at', { ascending: false });
+    document.getElementById('loadingMsg').style.display = 'none';
+    if (error) { console.error(error); return; }
+    recipes = data || [];
+    renderGallery();
+  }
+
+  // ── RENDER ──
   function filtered() {
     const q = document.getElementById('searchInput').value.trim().toLowerCase();
     return recipes.filter(r => {
       const catOk = activeCat === 'הכל' || r.tag === activeCat;
-      const qOk = !q || r.title.toLowerCase().includes(q) || (r.source||'').toLowerCase().includes(q);
+      const qOk = !q || (r.title||'').toLowerCase().includes(q) || (r.source||'').toLowerCase().includes(q);
       return catOk && qOk;
     });
   }
@@ -354,53 +336,44 @@
   function renderGallery() {
     const list = filtered();
     const gallery = document.getElementById('gallery');
-    const empty   = document.getElementById('emptyState');
+    const empty = document.getElementById('emptyState');
     document.getElementById('count').textContent = list.length;
 
     if (list.length === 0) { gallery.innerHTML = ''; empty.style.display = 'block'; return; }
     empty.style.display = 'none';
 
-    gallery.innerHTML = list.map((r, i) => {
-      const idx = recipes.indexOf(r);
-      return `
-        <div class="recipe-card" onclick="openView(${idx})">
-          <img src="${r.src}" alt="מתכון" loading="lazy" />
-          <div class="card-tag">${r.tag}</div>
-          <div class="card-overlay">
-            <div class="card-actions">
-              <button class="card-action-btn" title="מחק" onclick="deleteRecipe(event,${idx})">
-                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-              </button>
-            </div>
+    gallery.innerHTML = list.map(r => `
+      <div class="recipe-card" onclick="openView(${r.id})">
+        <img src="${r.image_url}" alt="מתכון" loading="lazy" />
+        <div class="card-tag">${r.tag || 'כללי'}</div>
+        <div class="card-overlay">
+          <div class="card-actions">
+            <button class="card-action-btn" onclick="deleteRecipe(event,${r.id})">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            </button>
           </div>
-          <div class="card-info">
-            <div class="card-title">${r.title || 'מתכון ללא שם'}</div>
-            ${r.source ? `<div class="card-source">
-              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              ${r.source}
-            </div>` : ''}
-          </div>
-        </div>`;
-    }).join('');
+        </div>
+        <div class="card-info">
+          <div class="card-title">${r.title || 'מתכון ללא שם'}</div>
+          ${r.source ? `<div class="card-source">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            ${r.source}
+          </div>` : ''}
+        </div>
+      </div>`).join('');
   }
 
-  function deleteRecipe(e, i) {
-    e.stopPropagation();
-    if (!confirm('למחוק את המתכון?')) return;
-    recipes.splice(i, 1);
-    renderGallery();
-  }
-
-  // VIEW MODAL
-  function openView(i) {
-    const r = recipes[i];
-    document.getElementById('viewImg').src = r.src;
+  // ── VIEW ──
+  function openView(id) {
+    const r = recipes.find(x => x.id === id);
+    if (!r) return;
+    document.getElementById('viewImg').src = r.image_url;
     document.getElementById('viewTitle').textContent = r.title || 'מתכון ללא שם';
-    document.getElementById('viewTag').textContent = r.tag;
+    document.getElementById('viewTag').textContent = r.tag || '';
     const srcEl = document.getElementById('viewSource');
-    if (r.source) {
-      srcEl.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${r.source}`;
-    } else { srcEl.innerHTML = ''; }
+    srcEl.innerHTML = r.source
+      ? `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${r.source}`
+      : '';
     document.getElementById('viewBackdrop').classList.add('open');
   }
   function closeView(e) {
@@ -408,15 +381,27 @@
       document.getElementById('viewBackdrop').classList.remove('open');
   }
 
-  // ADD MODAL
+  // ── DELETE ──
+  async function deleteRecipe(e, id) {
+    e.stopPropagation();
+    if (!confirm('למחוק את המתכון?')) return;
+    const { error } = await sb.from('recipes').delete().eq('id', id);
+    if (error) { alert('שגיאה במחיקה'); return; }
+    recipes = recipes.filter(r => r.id !== id);
+    renderGallery();
+  }
+
+  // ── ADD MODAL ──
   function openAddModal() {
-    pendingDataUrl = null;
+    pendingFile = null;
     document.getElementById('previewImg').src = '';
     document.getElementById('imgPreviewWrap').classList.remove('has-img');
     document.getElementById('inputTitle').value = '';
     document.getElementById('inputSource').value = '';
     document.getElementById('inputTag').value = 'כללי';
     document.getElementById('fileInput').value = '';
+    document.getElementById('progressBar').classList.remove('show');
+    document.getElementById('progressFill').style.width = '0%';
     document.getElementById('addBackdrop').classList.add('open');
   }
   function closeAdd(e) {
@@ -427,27 +412,68 @@
   function previewSelected(input) {
     const file = input.files[0];
     if (!file) return;
+    pendingFile = file;
     const reader = new FileReader();
     reader.onload = ev => {
-      pendingDataUrl = ev.target.result;
-      const img = document.getElementById('previewImg');
-      img.src = pendingDataUrl;
+      document.getElementById('previewImg').src = ev.target.result;
       document.getElementById('imgPreviewWrap').classList.add('has-img');
     };
     reader.readAsDataURL(file);
   }
 
-  function saveRecipe() {
-    if (!pendingDataUrl) { alert('נא לבחור תמונה'); return; }
+  // ── SAVE ──
+  async function saveRecipe() {
+    if (!pendingFile) { alert('נא לבחור תמונה'); return; }
     const title  = document.getElementById('inputTitle').value.trim() || 'מתכון ללא שם';
     const source = document.getElementById('inputSource').value.trim();
     const tag    = document.getElementById('inputTag').value;
-    recipes.unshift({ src: pendingDataUrl, tag, title, source });
+
+    const btn = document.getElementById('btnSave');
+    btn.disabled = true;
+    btn.textContent = 'שומרת...';
+
+    document.getElementById('progressBar').classList.add('show');
+    document.getElementById('progressFill').style.width = '40%';
+
+    // העלאת תמונה ל-Storage
+    const ext = pendingFile.name.split('.').pop();
+    const fileName = `${Date.now()}.${ext}`;
+    const { data: uploadData, error: uploadError } = await sb.storage
+      .from('recipe-images')
+      .upload(fileName, pendingFile);
+
+    if (uploadError) {
+      alert('שגיאה בהעלאת התמונה: ' + uploadError.message);
+      btn.disabled = false; btn.textContent = 'שמירה';
+      return;
+    }
+
+    document.getElementById('progressFill').style.width = '70%';
+
+    // קבלת URL ציבורי
+    const { data: { publicUrl } } = sb.storage.from('recipe-images').getPublicUrl(uploadData.path);
+
+    // שמירה ב-DB
+    const { data: newRecipe, error: dbError } = await sb.from('recipes')
+      .insert({ title, source, tag, image_url: publicUrl })
+      .select()
+      .single();
+
+    document.getElementById('progressFill').style.width = '100%';
+
+    if (dbError) {
+      alert('שגיאה בשמירה: ' + dbError.message);
+      btn.disabled = false; btn.textContent = 'שמירה';
+      return;
+    }
+
+    recipes.unshift(newRecipe);
     renderGallery();
     closeAdd();
+    btn.disabled = false; btn.textContent = 'שמירה';
   }
 
-  // CATEGORY FILTER
+  // ── CATEGORIES ──
   document.querySelectorAll('.cat-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
@@ -457,9 +483,7 @@
     });
   });
 
-  function filterRecipes() { renderGallery(); }
-
-  renderGallery();
+  loadRecipes();
 </script>
 </body>
 </html>
