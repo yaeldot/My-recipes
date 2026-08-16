@@ -55,8 +55,12 @@
 
   /* צל עדין בהובר — נעצר לפני תחתית התמונה */
   .card-shade {
-    position: absolute; left: 0; right: 0; top: 0; height: 198px;
-    background: linear-gradient(to top, rgba(30,15,5,0.5) 0%, rgba(30,15,5,0.12) 40%, transparent 70%);
+    position: absolute; left: 0; right: 0; top: 0; height: 220px;
+    background: linear-gradient(to top,
+      transparent 0%,
+      rgba(30,15,5,0.42) 16%,
+      rgba(30,15,5,0.14) 45%,
+      transparent 72%);
     opacity: 0; transition: opacity 0.2s; pointer-events: none;
   }
   .recipe-card:hover .card-shade { opacity: 1; }
