@@ -31,7 +31,7 @@
   .search-bar { display: flex; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: 100px; padding: 8px 16px; gap: 8px; width: 220px; }
   .search-bar input { border: none; background: transparent; font-family: 'Polin','Heebo',sans-serif; font-size: 0.9rem; color: var(--text); outline: none; width: 100%; }
   .search-bar svg { color: var(--text-muted); flex-shrink: 0; }
-  .btn-upload { display: flex; align-items: center; gap: 8px; background: var(--accent); color: white; border: none; border-radius: 100px; padding: 10px 20px; font-family: 'Polin','Heebo',sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+  .btn-upload { display: flex; align-items: center; gap: 8px; background: var(--accent); color: white; border: none; border-radius: 100px; padding: 10px 20px; font-family: 'Polin','Heebo',sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; flex-shrink: 0; }
   .btn-upload:hover { opacity: 0.88; }
   .btn-upload:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -47,8 +47,8 @@
   .gallery { columns: 5; column-gap: 16px; }
   @media (max-width: 1400px) { .gallery { columns: 4; } }
   @media (max-width: 1100px) { .gallery { columns: 3; } }
-  @media (max-width: 760px)  { .gallery { columns: 2; } }
-  @media (max-width: 480px)  { .gallery { columns: 1; } }
+  @media (max-width: 860px)  { .gallery { columns: 2; } }
+  @media (max-width: 620px)  { .gallery { columns: 1; column-gap: 0; } }
 
   .recipe-card { break-inside: avoid; background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 16px; cursor: pointer; transition: transform 0.2s; }
   .recipe-card:hover { transform: translateY(-3px); }
@@ -129,6 +129,51 @@
   .progress-bar { height: 4px; background: var(--accent-light); border-radius: 2px; overflow: hidden; margin-top: 8px; display: none; }
   .progress-bar.show { display: block; }
   .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; border-radius: 2px; }
+
+  /* ─────────── מובייל ─────────── */
+  @media (max-width: 860px) {
+    header {
+      height: auto; padding: 12px 18px; gap: 12px;
+      flex-wrap: wrap; align-items: center;
+    }
+    .logo { font-size: 1.4rem; }
+    .logo svg { width: 19px; height: 19px; }
+
+    /* השורה השנייה: חיפוש רחב + כפתור הוספה */
+    .header-actions { width: 100%; gap: 10px; }
+    .search-bar { flex: 1; width: auto; min-width: 0; padding: 9px 14px; }
+    .btn-upload { padding: 10px 16px; font-size: 0.85rem; }
+
+    .categories { padding: 14px 18px; gap: 8px; }
+    .cat-chip { padding: 7px 14px; font-size: 0.83rem; }
+
+    main { padding: 4px 18px 40px; }
+
+    /* כרטיסים — כפתורי עריכה/מחיקה תמיד גלויים (אין hover בנגיעה) */
+    .card-actions { opacity: 1; }
+    .card-shade { display: none; }
+  }
+
+  /* מסך צר במיוחד — הכפתור הופך לאייקון בלבד */
+  @media (max-width: 430px) {
+    header { padding: 12px 14px; }
+    .logo { font-size: 1.28rem; }
+    .categories { padding: 12px 14px; }
+    main { padding: 4px 14px 36px; }
+    .btn-upload span { display: none; }
+    .btn-upload { padding: 10px 13px; }
+  }
+
+  /* חלונות קופצים במובייל */
+  @media (max-width: 620px) {
+    .backdrop { padding: 12px; }
+    .add-modal, .view-modal { max-height: 92dvh; overflow-y: auto; }
+    .add-modal-header { padding: 16px 18px 0; }
+    .add-modal-body { padding: 14px 18px 18px; gap: 12px; }
+    .add-modal-footer { padding: 0 18px 18px; }
+    .img-preview-wrap { height: 170px; }
+    .view-modal img { max-height: 58dvh; }
+  }
 </style>
 </head>
 <body>
@@ -145,7 +190,7 @@
     </div>
     <button class="btn-upload" onclick="openAddModal()">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      הוספת מתכון
+      <span>הוספת מתכון</span>
     </button>
   </div>
 </header>
