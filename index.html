@@ -49,21 +49,24 @@
   @media (max-width: 760px)  { .gallery { columns: 2; } }
   @media (max-width: 480px)  { .gallery { columns: 1; } }
 
-  .recipe-card { break-inside: avoid; background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 16px; cursor: pointer; transition: transform 0.2s; position: relative; }
+  .recipe-card { break-inside: avoid; background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 16px; cursor: pointer; transition: transform 0.2s; }
   .recipe-card:hover { transform: translateY(-3px); }
-  .recipe-card img { width: 100%; height: 220px; display: block; object-fit: cover; }
 
-  /* צל עדין בהובר — נעצר לפני תחתית התמונה */
+  /* אזור התמונה — יחס 9:16 מאורך */
+  .card-media { position: relative; }
+  .recipe-card img { width: 100%; aspect-ratio: 9 / 16; display: block; object-fit: cover; }
+
+  /* שכבת אוברליי שקופה בהובר */
   .card-shade {
-    position: absolute; left: 0; right: 0; top: 0; height: 220px;
+    position: absolute; inset: 0;
     background: rgba(30,15,5,0.16);
     opacity: 0; transition: opacity 0.2s; pointer-events: none;
   }
   .recipe-card:hover .card-shade { opacity: 1; }
 
-  /* כפתור מחיקה — מעט מעל תחתית התמונה */
+  /* כפתור מחיקה — צמוד לתחתית התמונה */
   .card-delete {
-    position: absolute; left: 10px; bottom: 80px;
+    position: absolute; left: 10px; bottom: 10px;
     background: rgba(255,255,255,0.94); border: none; border-radius: 50%;
     width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
     cursor: pointer; color: var(--text); opacity: 0; transition: opacity 0.18s;
@@ -261,12 +264,14 @@
     empty.style.display = 'none';
     gallery.innerHTML = list.map(r => `
       <div class="recipe-card" onclick="openView(${r.id})">
-        <img src="${r.image_url}" alt="מתכון" loading="lazy" />
-        <div class="card-shade"></div>
-        <div class="card-tag">${r.tag || 'כללי'}</div>
-        <button class="card-delete" onclick="deleteRecipe(event,${r.id})">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-        </button>
+        <div class="card-media">
+          <img src="${r.image_url}" alt="מתכון" loading="lazy" />
+          <div class="card-shade"></div>
+          <div class="card-tag">${r.tag || 'כללי'}</div>
+          <button class="card-delete" onclick="deleteRecipe(event,${r.id})">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
         <div class="card-info">
           <div class="card-title">${r.title || 'מתכון ללא שם'}</div>
           ${r.source ? `<div class="card-source"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${r.source}</div>` : ''}
