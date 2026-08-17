@@ -64,15 +64,20 @@
   }
   .recipe-card:hover .card-shade { opacity: 1; }
 
-  /* כפתור מחיקה — צמוד לתחתית התמונה */
-  .card-delete {
+  /* כפתורי עריכה ומחיקה — צמודים לתחתית התמונה */
+  .card-actions {
     position: absolute; left: 10px; bottom: 10px;
+    display: flex; gap: 7px;
+    opacity: 0; transition: opacity 0.18s;
+  }
+  .recipe-card:hover .card-actions { opacity: 1; }
+  .card-btn {
     background: rgba(255,255,255,0.94); border: none; border-radius: 50%;
     width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: var(--text); opacity: 0; transition: opacity 0.18s;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.18);
+    cursor: pointer; color: var(--text);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.18); transition: background 0.15s;
   }
-  .recipe-card:hover .card-delete { opacity: 1; }
+  .card-btn:hover { background: #fff; }
 
   .card-tag { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.92); border-radius: 100px; padding: 3px 10px; font-size: 0.72rem; font-weight: 600; color: var(--accent); }
   .card-info { padding: 11px 13px 13px; }
@@ -189,7 +194,7 @@
 <div class="backdrop" id="addBackdrop" onclick="closeAdd(event)">
   <div class="add-modal" onclick="event.stopPropagation()">
     <div class="add-modal-header">
-      <h2>הוספת מתכון</h2>
+      <h2 id="modalHeading">הוספת מתכון</h2>
       <button class="icon-btn" onclick="closeAdd()">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
@@ -199,7 +204,7 @@
         <img id="previewImg" src="" alt="" />
         <div class="placeholder">
           <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
-          לחצי לבחירת תמונה
+          <span id="imgPickerLabel">לחצי לבחירת תמונה</span>
         </div>
       </div>
       <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="previewSelected(this)" />
@@ -236,6 +241,7 @@
   let recipes = [];
   let activeCat = 'הכל';
   let pendingFile = null;
+  let editingId = null;
 
   async function loadRecipes() {
     document.getElementById('loadingMsg').style.display = 'block';
@@ -268,9 +274,14 @@
           <img src="${r.image_url}" alt="מתכון" loading="lazy" />
           <div class="card-shade"></div>
           <div class="card-tag">${r.tag || 'כללי'}</div>
-          <button class="card-delete" onclick="deleteRecipe(event,${r.id})">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-          </button>
+          <div class="card-actions">
+            <button class="card-btn" title="עריכה" onclick="openEditModal(event,${r.id})">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            </button>
+            <button class="card-btn" title="מחיקה" onclick="deleteRecipe(event,${r.id})">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            </button>
+          </div>
         </div>
         <div class="card-info">
           <div class="card-title">${r.title || 'מתכון ללא שם'}</div>
@@ -304,12 +315,34 @@
   }
 
   function openAddModal() {
+    editingId = null;
     pendingFile = null;
+    document.getElementById('modalHeading').textContent = 'הוספת מתכון';
+    document.getElementById('imgPickerLabel').textContent = 'לחצי לבחירת תמונה';
     document.getElementById('previewImg').src = '';
     document.getElementById('imgPreviewWrap').classList.remove('has-img');
     document.getElementById('inputTitle').value = '';
     document.getElementById('inputSource').value = '';
     document.getElementById('inputTag').value = 'כללי';
+    document.getElementById('fileInput').value = '';
+    document.getElementById('progressBar').classList.remove('show');
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('addBackdrop').classList.add('open');
+  }
+
+  function openEditModal(e, id) {
+    e.stopPropagation();
+    const r = recipes.find(x => x.id === id);
+    if (!r) return;
+    editingId = id;
+    pendingFile = null;
+    document.getElementById('modalHeading').textContent = 'עריכת מתכון';
+    document.getElementById('imgPickerLabel').textContent = 'לחצי להחלפת התמונה';
+    document.getElementById('previewImg').src = r.image_url;
+    document.getElementById('imgPreviewWrap').classList.add('has-img');
+    document.getElementById('inputTitle').value = r.title || '';
+    document.getElementById('inputSource').value = r.source || '';
+    document.getElementById('inputTag').value = r.tag || 'כללי';
     document.getElementById('fileInput').value = '';
     document.getElementById('progressBar').classList.remove('show');
     document.getElementById('progressFill').style.width = '0%';
@@ -333,31 +366,52 @@
   }
 
   async function saveRecipe() {
-    if (!pendingFile) { alert('נא לבחור תמונה'); return; }
+    // בהוספה חייבים תמונה; בעריכה התמונה הקיימת נשמרת אם לא בחרו חדשה
+    if (!editingId && !pendingFile) { alert('נא לבחור תמונה'); return; }
+
     const title  = document.getElementById('inputTitle').value.trim() || 'מתכון ללא שם';
     const source = document.getElementById('inputSource').value.trim();
     const tag    = document.getElementById('inputTag').value;
     const btn = document.getElementById('btnSave');
+    const bar = document.getElementById('progressFill');
+    const done = (msg) => { btn.disabled = false; btn.textContent = 'שמירה'; if (msg) alert(msg); };
+
     btn.disabled = true; btn.textContent = 'שומרת...';
     document.getElementById('progressBar').classList.add('show');
-    document.getElementById('progressFill').style.width = '40%';
+    bar.style.width = '40%';
 
-    const ext = pendingFile.name.split('.').pop();
-    const fileName = `${Date.now()}.${ext}`;
-    const { data: uploadData, error: uploadError } = await sb.storage.from('recipe-images').upload(fileName, pendingFile);
-    if (uploadError) { alert('שגיאה בהעלאת התמונה: ' + uploadError.message); btn.disabled = false; btn.textContent = 'שמירה'; return; }
+    // העלאת תמונה חדשה (רק אם נבחרה)
+    let imageUrl = null;
+    if (pendingFile) {
+      const ext = pendingFile.name.split('.').pop();
+      const fileName = `${Date.now()}.${ext}`;
+      const { data: uploadData, error: uploadError } =
+        await sb.storage.from('recipe-images').upload(fileName, pendingFile);
+      if (uploadError) return done('שגיאה בהעלאת התמונה: ' + uploadError.message);
+      imageUrl = sb.storage.from('recipe-images').getPublicUrl(uploadData.path).data.publicUrl;
+    }
+    bar.style.width = '70%';
 
-    document.getElementById('progressFill').style.width = '70%';
-    const { data: { publicUrl } } = sb.storage.from('recipe-images').getPublicUrl(uploadData.path);
+    if (editingId) {
+      const patch = { title, source, tag };
+      if (imageUrl) patch.image_url = imageUrl;
+      const { data: updated, error } = await sb.from('recipes')
+        .update(patch).eq('id', editingId).select().single();
+      bar.style.width = '100%';
+      if (error) return done('שגיאה בעדכון: ' + error.message);
+      const idx = recipes.findIndex(r => r.id === editingId);
+      if (idx !== -1) recipes[idx] = updated;
+    } else {
+      const { data: newRecipe, error } = await sb.from('recipes')
+        .insert({ title, source, tag, image_url: imageUrl }).select().single();
+      bar.style.width = '100%';
+      if (error) return done('שגיאה בשמירה: ' + error.message);
+      recipes.unshift(newRecipe);
+    }
 
-    const { data: newRecipe, error: dbError } = await sb.from('recipes').insert({ title, source, tag, image_url: publicUrl }).select().single();
-    document.getElementById('progressFill').style.width = '100%';
-    if (dbError) { alert('שגיאה בשמירה: ' + dbError.message); btn.disabled = false; btn.textContent = 'שמירה'; return; }
-
-    recipes.unshift(newRecipe);
     renderGallery();
     closeAdd();
-    btn.disabled = false; btn.textContent = 'שמירה';
+    done();
   }
 
   document.querySelectorAll('.cat-chip').forEach(chip => {
