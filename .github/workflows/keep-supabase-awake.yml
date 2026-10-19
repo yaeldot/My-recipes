@@ -1,0 +1,36 @@
+name: Keep Supabase awake
+
+# Supabase's free tier pauses a project after 7 days with no activity, which
+# takes the recipe gallery offline until someone clicks "Resume" by hand.
+# A single read a day is enough to reset that timer.
+
+on:
+  schedule:
+    # 06:17 UTC daily. Off the hour on purpose — GitHub delays jobs that are
+    # scheduled on the hour because that is when everyone else queues theirs.
+    - cron: '17 6 * * *'
+  # Lets you trigger it yourself from the Actions tab to check it works.
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read one row from the recipes table
+        run: |
+          # The publishable key is already visible in the site's own HTML,
+          # so there is nothing secret being exposed here.
+          status=$(curl --silent --show-error --max-time 30 \
+            --output /dev/null --write-out '%{http_code}' \
+            -H "apikey: sb_publishable_8KAt0AkDcOG_jEi16FnbJw_L0YyDNim" \
+            "https://agccsexevjgjqzwtwfdm.supabase.co/rest/v1/recipes?select=id&limit=1")
+
+          echo "HTTP $status"
+
+          # 2xx means the project answered and the inactivity clock is reset.
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            echo "::error::Supabase did not respond normally (HTTP $status). The project may be paused — resume it at https://supabase.com/dashboard"
+            exit 1
+          fi
+
+          echo "Project is awake."
